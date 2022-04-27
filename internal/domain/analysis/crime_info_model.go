@@ -1,4 +1,4 @@
-package domain
+package analysis
 
 type CrimeInfoModel struct {
 	Name        string  `json:"name"`

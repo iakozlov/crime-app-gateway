@@ -1,4 +1,4 @@
-package domain
+package analysis
 
 type CrimeAnalysisRequest struct {
 	Lat     string `json:"lat"`
