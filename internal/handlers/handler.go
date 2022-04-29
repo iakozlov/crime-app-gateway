@@ -16,7 +16,7 @@ type CrimeAnalysisService interface {
 }
 
 type UserHistoryService interface {
-	History(ctx context.Context, request domain.UserHistoryRequest) (domain.UserHistoryResponse, error)
+	History(ctx context.Context, request domain.UserHistoryRequest) (*domain.UserHistoryResponse, error)
 }
 
 type CrimeAnalysisHandler struct {
