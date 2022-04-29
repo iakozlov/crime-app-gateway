@@ -17,6 +17,7 @@ type UserHistoryRequest struct {
 	ID primitive.ObjectID `bson:"_id"`
 }
 
+//TODO: мб сделать словарь
 type UserHistoryResponse struct {
 	History []UserHistoryItem `json:"history"`
 }
