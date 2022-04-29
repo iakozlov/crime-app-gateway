@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"github/iakozlov/crime-app-gateway/internal/domain"
 	"github/iakozlov/crime-app-gateway/internal/handlers"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserHistoryRepository interface {
-	UserHistory(ctx context.Context, id primitive.ObjectID) (*domain.UserHistoryResponse, error)
+	UserHistory(ctx context.Context, userName string) (*domain.UserHistoryResponse, error)
 	AddUserHistoryItem(ctx context.Context, item domain.UserHistoryItem) error
-	CreateUser(ctx context.Context, id primitive.ObjectID) error
+	CreateUser(ctx context.Context, userName string) error
 }
 
 type UserHistoryService struct {
@@ -25,7 +24,7 @@ func NewUserHistoryService(rep UserHistoryRepository) handlers.UserHistoryServic
 }
 
 func (u UserHistoryService) History(ctx context.Context, request domain.UserHistoryRequest) (*domain.UserHistoryResponse, error) {
-	storedHistory, err := u.historyRepo.UserHistory(ctx, request.ID)
+	storedHistory, err := u.historyRepo.UserHistory(ctx, request.UserName)
 	if err != nil {
 		return nil, fmt.Errorf("can't get user history from database, err: %w", err)
 	}
