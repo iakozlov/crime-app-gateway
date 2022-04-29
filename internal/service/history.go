@@ -11,6 +11,7 @@ import (
 type UserHistoryRepository interface {
 	UserHistory(ctx context.Context, id primitive.ObjectID) (*domain.UserHistoryResponse, error)
 	AddUserHistoryItem(ctx context.Context, item domain.UserHistoryItem) error
+	CreateUser(ctx context.Context, id primitive.ObjectID) error
 }
 
 type UserHistoryService struct {

@@ -12,9 +12,14 @@ type ServerConfig struct {
 	MaxHeader    int32  `mapstructure:"max_header"`
 }
 
+type DbConfig struct {
+	Uri string `mapstructure:"uri"`
+}
+
 type Config struct {
-	SrvConfig  ServerConfig  `mapstructure:"server"`
-	CtxTimeout time.Duration `mapstructure:"timeout"`
+	SrvConfig      ServerConfig  `mapstructure:"server"`
+	DatabaseConfig DbConfig      `mapstructure:"db"`
+	CtxTimeout     time.Duration `mapstructure:"timeout"`
 }
 
 func Read(configFilePath string) (*Config, error) {
