@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	"github/iakozlov/crime-app-gateway/cmd/config"
+	"github/iakozlov/crime-app-gateway/config"
 	"net/http"
 	"time"
 )
