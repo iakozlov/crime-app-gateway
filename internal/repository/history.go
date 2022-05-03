@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"github/iakozlov/crime-app-gateway/internal/domain"
-	"github/iakozlov/crime-app-gateway/internal/service"
+	"github.com/iakozlov/crime-app-gateway/internal/domain"
+	"github.com/iakozlov/crime-app-gateway/internal/service"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"

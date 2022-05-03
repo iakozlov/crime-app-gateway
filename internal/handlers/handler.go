@@ -3,10 +3,10 @@ package handlers
 import (
 	"context"
 	"errors"
+	"github.com/iakozlov/crime-app-gateway/internal/domain"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
-	"github/iakozlov/crime-app-gateway/internal/domain"
 	"net/http"
 	"time"
 )
@@ -55,16 +55,16 @@ func (h CrimeAppHandler) InitRoutes(e *echo.Echo, timeout time.Duration) {
 		}),
 	)
 	users.POST("/analysis", h.GetCrimeAnalysisHandler)
-	//users.POST("/login", h.SignInHandler)
+	users.POST("/analysis", h.GetUserHistory)
 }
 
 // SignInHandler godoc
-// @Summary      provides signing in operation
-// @Description  authorize user in crime-app microservices ecosystem
+// @Summary      represents crime analysis
+// @Description  get info about crime analysis at some point
 // @Tags         analysis
 // @Accept       json
 // @Produce      json
-// @Param        id   body      domain.CrimeAnalysisRequest  true  "User's consisted of login and password"
+// @Param        id   body      domain.CrimeAnalysisRequest  true  "CrimeAnalysisInfo"
 // @Success      200  {object}  string
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
@@ -88,5 +88,39 @@ func (h CrimeAppHandler) GetCrimeAnalysisHandler(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, echo.Map{
 		"analysis": response,
+	})
+}
+
+// SignInHandler godoc
+// @Summary      represents user requests history
+// @Description  get user requests history
+// @Tags         history
+// @Accept       json
+// @Produce      json
+// @Param        username   body      domain.UserHistoryRequest  true  "UserHistory"
+// @Success      200  {object}  string
+// @Failure 400 {object} echo.HTTPError
+// @Failure 401 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Failure default {object} echo.HTTPError
+// @Router       /user/history [post]
+func (h CrimeAppHandler) GetUserHistory(c echo.Context) error {
+	ctx := c.Request().Context()
+	request := domain.UserHistoryRequest{}
+
+	if err := c.Bind(&request); err != nil {
+		h.log.Error(err)
+		//todo: сделать маппинг статус кодов в названия
+		return echo.NewHTTPError(400, err)
+	}
+
+	response, err := h.userHistoryService.History(ctx, request)
+	if err != nil {
+		h.log.Error(err)
+		return echo.NewHTTPError(500, err)
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{
+		"history": response,
 	})
 }

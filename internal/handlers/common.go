@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
+	_ "github.com/iakozlov/crime-app-gateway/docs" // register my own docs
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	_ "github/iakozlov/crime-app-gateway/docs" // register my own docs
 )
 
 // InitCommonRoutes registers handlers and uses middlewares.

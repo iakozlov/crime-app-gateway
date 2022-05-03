@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
-	"github/iakozlov/crime-app-gateway/internal/domain"
-	"github/iakozlov/crime-app-gateway/internal/handlers"
+	"github.com/iakozlov/crime-app-gateway/internal/domain"
+	"github.com/iakozlov/crime-app-gateway/internal/handlers"
 )
 
 type UserHistoryRepository interface {

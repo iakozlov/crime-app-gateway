@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"github/iakozlov/crime-app-gateway/config"
+	"github.com/iakozlov/crime-app-gateway/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

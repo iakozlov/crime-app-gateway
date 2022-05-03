@@ -3,14 +3,14 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/iakozlov/crime-app-gateway/config"
+	"github.com/iakozlov/crime-app-gateway/internal/handlers"
+	"github.com/iakozlov/crime-app-gateway/internal/repository"
+	"github.com/iakozlov/crime-app-gateway/internal/service"
+	"github.com/iakozlov/crime-app-gateway/pkg/db"
+	"github.com/iakozlov/crime-app-gateway/pkg/server"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
-	"github/iakozlov/crime-app-gateway/config"
-	"github/iakozlov/crime-app-gateway/internal/handlers"
-	"github/iakozlov/crime-app-gateway/internal/repository"
-	"github/iakozlov/crime-app-gateway/internal/service"
-	"github/iakozlov/crime-app-gateway/pkg/db"
-	"github/iakozlov/crime-app-gateway/pkg/server"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	configPath = "/Users/ivkozlov/Desktop/Coding/crime-app-gateway/config/config.yaml"
+	configPath = "./config/config.yaml"
 )
 
 // @title Crime app auth

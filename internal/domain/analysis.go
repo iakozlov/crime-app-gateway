@@ -14,5 +14,5 @@ type CrimeInfoModel struct {
 }
 
 type CrimeAnalysisResponse struct {
-	Crimes []CrimeInfoModel `json:"crimes"`
+	Crimes map[string]map[string]string `json:"crimes"`
 }

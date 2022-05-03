@@ -5,15 +5,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github/iakozlov/crime-app-gateway/internal/domain"
-	"github/iakozlov/crime-app-gateway/internal/service"
+	"github.com/iakozlov/crime-app-gateway/internal/domain"
+	"github.com/iakozlov/crime-app-gateway/internal/service"
 	"io/ioutil"
 	"net/http"
 )
 
 const (
 	methodType = "POST"
-	uri        = "localhost:5000"
+	uri        = "http://192.168.0.99:80/predict"
 )
 
 type CrimeAnalysisRepository struct {
@@ -31,7 +31,7 @@ func (r CrimeAnalysisRepository) CrimeAnalysis(ctx context.Context, request doma
 	requestBody, err := json.Marshal(map[string]string{
 		"X":    request.Lat,
 		"Y":    request.Lng,
-		"Date": request.Date,
+		"date": request.Date,
 	})
 	if err != nil {
 		fmt.Errorf("can't make request body, err: %w", err)
@@ -55,7 +55,7 @@ func (r CrimeAnalysisRepository) CrimeAnalysis(ctx context.Context, request doma
 		fmt.Errorf("can't read response body, err: %w", err)
 	}
 
-	var crimes []domain.CrimeInfoModel
+	var crimes map[string]map[string]string
 
 	err = json.Unmarshal(body, &crimes)
 	if err != nil {

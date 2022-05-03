@@ -1,4 +1,4 @@
-module github/iakozlov/crime-app-gateway
+module github.com/iakozlov/crime-app-gateway
 
 go 1.18
 
