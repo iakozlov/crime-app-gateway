@@ -21,6 +21,7 @@ type CrimeAnalysisService interface {
 
 type UserHistoryService interface {
 	History(ctx context.Context, request domain.UserHistoryRequest) (*domain.UserHistoryResponse, error)
+	AddHistory(ctx context.Context, request domain.UserHistoryItem, username string) error
 }
 
 type CrimeAppHandler struct {
@@ -55,10 +56,10 @@ func (h CrimeAppHandler) InitRoutes(e *echo.Echo, timeout time.Duration) {
 		}),
 	)
 	users.POST("/analysis", h.GetCrimeAnalysisHandler)
-	users.POST("/analysis", h.GetUserHistory)
+	users.POST("/history", h.GetUserHistory)
 }
 
-// SignInHandler godoc
+// GetCrimeAnalysisHandler godoc
 // @Summary      represents crime analysis
 // @Description  get info about crime analysis at some point
 // @Tags         analysis
@@ -91,7 +92,7 @@ func (h CrimeAppHandler) GetCrimeAnalysisHandler(c echo.Context) error {
 	})
 }
 
-// SignInHandler godoc
+// GetUserHistory  godoc
 // @Summary      represents user requests history
 // @Description  get user requests history
 // @Tags         history
@@ -103,7 +104,7 @@ func (h CrimeAppHandler) GetCrimeAnalysisHandler(c echo.Context) error {
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Failure default {object} echo.HTTPError
-// @Router       /user/history [post]
+// @Router       /crime/history [post]
 func (h CrimeAppHandler) GetUserHistory(c echo.Context) error {
 	ctx := c.Request().Context()
 	request := domain.UserHistoryRequest{}

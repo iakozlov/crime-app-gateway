@@ -49,7 +49,7 @@ func main() {
 	}
 
 	analysisRepository := repository.NewCrimeAnalysisRepository(client)
-	analysisService := service.NewCrimeAnalysisService(analysisRepository)
+	analysisService := service.NewCrimeAnalysisService(analysisRepository, historyService)
 
 	e := echo.New()
 	handlers.InitCommonRoutes(e)

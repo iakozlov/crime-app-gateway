@@ -1,11 +1,12 @@
 package domain
 
 type CrimeAnalysisRequest struct {
-	Lat     string `json:"lat"`
-	Lng     string `json:"lng"`
-	Date    string `json:"date"`
-	Time    string `json:"time"`
-	Address string `json:"address"`
+	Lat      string `json:"lat"`
+	Lng      string `json:"lng"`
+	Date     string `json:"date"`
+	Time     string `json:"time"`
+	Address  string `json:"address"`
+	UserName string `json:"userName"`
 }
 
 type CrimeInfoModel struct {
@@ -14,5 +15,5 @@ type CrimeInfoModel struct {
 }
 
 type CrimeAnalysisResponse struct {
-	Crimes map[string]map[string]string `json:"crimes"`
+	Crimes []CrimeInfoModel `json:"crimes"`
 }

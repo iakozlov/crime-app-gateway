@@ -1,13 +1,9 @@
 package domain
 
-import (
-	"time"
-)
-
 type UserHistoryItem struct {
-	UserName      string                `bson:"username"`
 	CrimeAnalysis CrimeAnalysisResponse `bson:"analysis"`
-	RequestDate   time.Time             `bson:"time"`
+	RequestDate   string                `bson:"time"`
+	Address       string                `bson:"address"`
 }
 
 //TODO: jwt и прочие признаки аутентификации

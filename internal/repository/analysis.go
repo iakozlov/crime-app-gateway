@@ -9,6 +9,7 @@ import (
 	"github.com/iakozlov/crime-app-gateway/internal/service"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -55,16 +56,31 @@ func (r CrimeAnalysisRepository) CrimeAnalysis(ctx context.Context, request doma
 		fmt.Errorf("can't read response body, err: %w", err)
 	}
 
-	var crimes map[string]map[string]string
+	var crimesDict map[string]map[string]string
 
-	err = json.Unmarshal(body, &crimes)
+	err = json.Unmarshal(body, &crimesDict)
 	if err != nil {
 		fmt.Errorf("can't decode response body, err: %w", err)
 	}
 
-	result := domain.CrimeAnalysisResponse{
-		Crimes: crimes,
+	crimes := crimesDict["prediction"]
+
+	var crimesInfoSlice []domain.CrimeInfoModel
+
+	for key, value := range crimes {
+		probability, err := strconv.ParseFloat(value, 3)
+		if err != nil {
+			return domain.CrimeAnalysisResponse{}, fmt.Errorf("can't convert probability to float, err: %w", err)
+		}
+
+		crimesInfoSlice = append(crimesInfoSlice, domain.CrimeInfoModel{
+			Name:        key,
+			Probability: probability,
+		})
 	}
 
+	result := domain.CrimeAnalysisResponse{
+		Crimes: crimesInfoSlice,
+	}
 	return result, nil
 }

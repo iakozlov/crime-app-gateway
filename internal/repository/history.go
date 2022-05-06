@@ -5,6 +5,7 @@ import (
 	"github.com/iakozlov/crime-app-gateway/internal/domain"
 	"github.com/iakozlov/crime-app-gateway/internal/service"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 )
@@ -18,6 +19,12 @@ const (
 
 type UserRepository struct {
 	client *mongo.Client
+}
+
+type UserHistoryRecord struct {
+	ID      primitive.ObjectID       `bson:"_id"`
+	UseName string                   `bson:"username"`
+	History []domain.UserHistoryItem `bson:"history"`
 }
 
 func NewUserRepository(client *mongo.Client) service.UserHistoryRepository {
@@ -36,13 +43,13 @@ func (u UserRepository) UserHistory(ctx context.Context, userName string) (*doma
 		return nil, err
 	}
 	for cursor.Next(ctx) {
-		var item domain.UserHistoryItem
-		err := cursor.Decode(&item)
+		var record UserHistoryRecord
+		err := cursor.Decode(&record)
 		if err != nil {
 			return nil, err
 		}
 
-		results = append(results, item)
+		results = record.History
 	}
 
 	response := &domain.UserHistoryResponse{
@@ -54,14 +61,14 @@ func (u UserRepository) UserHistory(ctx context.Context, userName string) (*doma
 	return response, nil
 }
 
-func (u UserRepository) AddUserHistoryItem(ctx context.Context, item domain.UserHistoryItem) error {
+func (u UserRepository) AddUserHistoryItem(ctx context.Context, item domain.UserHistoryItem, username string) error {
 	historyDatabase := u.client.Database(databaseName)
 	historyCollection := historyDatabase.Collection(collectionName)
 	change := bson.M{"$push": bson.M{historyName: item}}
 
 	_, err := historyCollection.UpdateOne(
 		ctx,
-		bson.M{collectionKey: item.UserName},
+		bson.M{collectionKey: username},
 		change)
 
 	if err != nil {
