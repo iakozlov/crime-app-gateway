@@ -16,7 +16,7 @@ var (
 )
 
 type CrimeAnalysisService interface {
-	CrimeAnalysis(ctx context.Context, request domain.CrimeAnalysisRequest) (domain.CrimeAnalysisResponse, error)
+	CrimeAnalysis(ctx context.Context, request domain.CrimeAnalysisRequest) (*domain.CrimeAnalysisResponse, error)
 }
 
 type UserHistoryService interface {

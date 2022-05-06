@@ -27,7 +27,7 @@ func NewCrimeAnalysisRepository(client http.Client) service.CrimeAnalysisReposit
 	}
 }
 
-func (r CrimeAnalysisRepository) CrimeAnalysis(ctx context.Context, request domain.CrimeAnalysisRequest) (domain.CrimeAnalysisResponse, error) {
+func (r CrimeAnalysisRepository) CrimeAnalysis(ctx context.Context, request domain.CrimeAnalysisRequest) (*domain.CrimeAnalysisResponse, error) {
 	//TODO: разобраться точно с полями в теле запроса
 	requestBody, err := json.Marshal(map[string]string{
 		"X":    request.Lat,
@@ -39,10 +39,11 @@ func (r CrimeAnalysisRepository) CrimeAnalysis(ctx context.Context, request doma
 	}
 
 	httpRequest, err := http.NewRequest(methodType, uri, bytes.NewBuffer(requestBody))
-	httpRequest.Header.Set("Content-type", "application/json")
 	if err != nil {
 		fmt.Errorf("can't make request, err: %w", err)
 	}
+
+	httpRequest.Header.Set("Content-type", "application/json")
 
 	response, err := r.client.Do(httpRequest)
 	if err != nil {
@@ -70,7 +71,7 @@ func (r CrimeAnalysisRepository) CrimeAnalysis(ctx context.Context, request doma
 	for key, value := range crimes {
 		probability, err := strconv.ParseFloat(value, 3)
 		if err != nil {
-			return domain.CrimeAnalysisResponse{}, fmt.Errorf("can't convert probability to float, err: %w", err)
+			return nil, fmt.Errorf("can't convert probability to float, err: %w", err)
 		}
 
 		crimesInfoSlice = append(crimesInfoSlice, domain.CrimeInfoModel{
@@ -79,7 +80,7 @@ func (r CrimeAnalysisRepository) CrimeAnalysis(ctx context.Context, request doma
 		})
 	}
 
-	result := domain.CrimeAnalysisResponse{
+	result := &domain.CrimeAnalysisResponse{
 		Crimes: crimesInfoSlice,
 	}
 	return result, nil

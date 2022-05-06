@@ -44,11 +44,10 @@ func main() {
 	historyRepository := repository.NewUserRepository(mongoClient)
 	historyService := service.NewUserHistoryService(historyRepository)
 
-	client := http.Client{
-		Timeout: cfg.CtxTimeout,
-	}
-
-	analysisRepository := repository.NewCrimeAnalysisRepository(client)
+	analysisRepository := repository.NewCrimeAnalysisRepository(
+		http.Client{
+			Timeout: cfg.CtxTimeout,
+		})
 	analysisService := service.NewCrimeAnalysisService(analysisRepository, historyService)
 
 	e := echo.New()

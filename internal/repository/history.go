@@ -2,12 +2,12 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"github.com/iakozlov/crime-app-gateway/internal/domain"
 	"github.com/iakozlov/crime-app-gateway/internal/service"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
 )
 
 const (
@@ -39,8 +39,10 @@ func (u UserRepository) UserHistory(ctx context.Context, userName string) (*doma
 
 	var results []domain.UserHistoryItem
 	cursor, err := historyCollection.Find(ctx, bson.M{collectionKey: userName})
+	defer cursor.Close(ctx)
+
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't find history in db, err: %w", err)
 	}
 	for cursor.Next(ctx) {
 		var record UserHistoryRecord
@@ -56,8 +58,6 @@ func (u UserRepository) UserHistory(ctx context.Context, userName string) (*doma
 		History: results,
 	}
 
-	cursor.Close(ctx)
-
 	return response, nil
 }
 
@@ -66,13 +66,8 @@ func (u UserRepository) AddUserHistoryItem(ctx context.Context, item domain.User
 	historyCollection := historyDatabase.Collection(collectionName)
 	change := bson.M{"$push": bson.M{historyName: item}}
 
-	_, err := historyCollection.UpdateOne(
-		ctx,
-		bson.M{collectionKey: username},
-		change)
-
-	if err != nil {
-		log.Fatal(err)
+	if _, err := historyCollection.UpdateOne(ctx, bson.M{collectionKey: username}, change); err != nil {
+		return fmt.Errorf("can't add user history to database, err: %w", err)
 	}
 
 	return nil
@@ -82,13 +77,12 @@ func (u UserRepository) CreateUser(ctx context.Context, userName string) error {
 	historyDatabase := u.client.Database(databaseName)
 	historyCollection := historyDatabase.Collection(collectionName)
 
-	_, err := historyCollection.InsertOne(ctx, bson.D{
-		{Key: collectionKey, Value: userName},
-		{Key: historyName, Value: bson.A{}},
-	})
+	insertedInfo := bson.D{{
+		Key: collectionKey, Value: userName},
+		{Key: historyName, Value: bson.A{}}}
 
-	if err != nil {
-		log.Fatal()
+	if _, err := historyCollection.InsertOne(ctx, insertedInfo); err != nil {
+		return fmt.Errorf("can't create user in database, err: %w", err)
 	}
 
 	return nil
