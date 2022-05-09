@@ -3,16 +3,19 @@ package handlers
 import (
 	"context"
 	"errors"
+	"net/http"
+	"time"
+
+	"github.com/golang-jwt/jwt"
 	"github.com/iakozlov/crime-app-gateway/internal/domain"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"time"
 )
 
 var (
 	ErrTimout = errors.New("the request execution timeout has expired")
+	jwtKey    = "user"
 )
 
 type CrimeAnalysisService interface {
@@ -38,7 +41,7 @@ func NewCrimeAnalysisHandler(analysisService CrimeAnalysisService, historyServic
 	}
 }
 
-func (h CrimeAppHandler) InitRoutes(e *echo.Echo, timeout time.Duration) {
+func (h CrimeAppHandler) InitRoutes(e *echo.Echo, timeout time.Duration, jwtSecret string) {
 	users := e.Group(
 		"crime",
 		middleware.RequestID(),
@@ -53,6 +56,10 @@ func (h CrimeAppHandler) InitRoutes(e *echo.Echo, timeout time.Duration) {
 				c.Error(err)
 			},
 			Timeout: timeout * time.Second,
+		}),
+		middleware.JWTWithConfig(middleware.JWTConfig{
+			Claims:     &jwtCrimeClaims{},
+			SigningKey: []byte(jwtSecret),
 		}),
 	)
 	users.POST("/analysis", h.GetCrimeAnalysisHandler)
@@ -72,14 +79,26 @@ func (h CrimeAppHandler) InitRoutes(e *echo.Echo, timeout time.Duration) {
 // @Failure 500 {object} echo.HTTPError
 // @Failure default {object} echo.HTTPError
 // @Router       /crime/analysis [post]
+// @Security ApiKeyAuth
 func (h CrimeAppHandler) GetCrimeAnalysisHandler(c echo.Context) error {
 	ctx := c.Request().Context()
+
+	token, ok := c.Get(jwtKey).(*jwt.Token)
+	if !ok {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("incorrect JWT token"))
+	}
+	crimeClaims, ok := token.Claims.(jwtCrimeClaims)
+	if !ok {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("incorrect JWT token"))
+	}
+
 	request := domain.CrimeAnalysisRequest{}
 	if err := c.Bind(&request); err != nil {
 		h.log.Error(err)
 		//todo: сделать маппинг статус кодов в названия
 		return echo.NewHTTPError(400, err)
 	}
+	request.UserName = crimeClaims.Login
 
 	response, err := h.crimeAnalysisService.CrimeAnalysis(ctx, request)
 	if err != nil {
@@ -98,22 +117,26 @@ func (h CrimeAppHandler) GetCrimeAnalysisHandler(c echo.Context) error {
 // @Tags         history
 // @Accept       json
 // @Produce      json
-// @Param        username   body      domain.UserHistoryRequest  true  "UserHistory"
 // @Success      200  {object}  string
 // @Failure 400 {object} echo.HTTPError
 // @Failure 401 {object} echo.HTTPError
 // @Failure 500 {object} echo.HTTPError
 // @Failure default {object} echo.HTTPError
 // @Router       /crime/history [post]
+// @Security ApiKeyAuth
 func (h CrimeAppHandler) GetUserHistory(c echo.Context) error {
 	ctx := c.Request().Context()
-	request := domain.UserHistoryRequest{}
 
-	if err := c.Bind(&request); err != nil {
-		h.log.Error(err)
-		//todo: сделать маппинг статус кодов в названия
-		return echo.NewHTTPError(400, err)
+	token, ok := c.Get(jwtKey).(*jwt.Token)
+	if !ok {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("incorrect JWT token"))
 	}
+	crimeClaims, ok := token.Claims.(jwtCrimeClaims)
+	if !ok {
+		return echo.NewHTTPError(http.StatusBadRequest, errors.New("incorrect JWT token"))
+	}
+
+	request := domain.UserHistoryRequest{UserName: crimeClaims.Login}
 
 	response, err := h.userHistoryService.History(ctx, request)
 	if err != nil {
@@ -124,4 +147,9 @@ func (h CrimeAppHandler) GetUserHistory(c echo.Context) error {
 	return c.JSON(http.StatusOK, echo.Map{
 		"history": response,
 	})
+}
+
+type jwtCrimeClaims struct {
+	Login string `json:"login"`
+	jwt.StandardClaims
 }

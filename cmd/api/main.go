@@ -3,6 +3,11 @@ package main
 import (
 	"context"
 	"errors"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/iakozlov/crime-app-gateway/config"
 	"github.com/iakozlov/crime-app-gateway/internal/handlers"
 	"github.com/iakozlov/crime-app-gateway/internal/repository"
@@ -11,10 +16,6 @@ import (
 	"github.com/iakozlov/crime-app-gateway/pkg/server"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 const (
@@ -24,6 +25,9 @@ const (
 // @title Crime app auth
 // @version 1.0
 // @description Crime app auth provides authentication for crime-app microservices.
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name CrimeJWT
 
 // @host localhost:8000
 // @BasePath /
@@ -31,9 +35,9 @@ func main() {
 	ctx := context.Background()
 	log := logrus.New()
 
-	cfg, error := config.Read(configPath)
-	if error != nil {
-		log.Fatal("can't load config, err: %w", error)
+	cfg, err := config.Read(configPath)
+	if err != nil {
+		log.Fatal("can't load config, err: %w", err)
 	}
 
 	mongoClient, err := db.Connect(ctx, cfg.DatabaseConfig)
@@ -53,7 +57,7 @@ func main() {
 	e := echo.New()
 	handlers.InitCommonRoutes(e)
 	handler := handlers.NewCrimeAnalysisHandler(analysisService, historyService, log)
-	handler.InitRoutes(e, cfg.CtxTimeout)
+	handler.InitRoutes(e, cfg.CtxTimeout, cfg.SecretJWT)
 
 	srv := server.NewServer(cfg.SrvConfig, e)
 
