@@ -25,9 +25,9 @@ const (
 // @title Crime app auth
 // @version 1.0
 // @description Crime app auth provides authentication for crime-app microservices.
-// @securityDefinitions.apikey ApiKeyAuth
+// @securityDefinitions.apikey BearerAuth
 // @in header
-// @name CrimeJWT
+// @name Authorization
 
 // @host localhost:8000
 // @BasePath /

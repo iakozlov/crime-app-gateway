@@ -14,8 +14,9 @@ import (
 )
 
 var (
-	ErrTimout = errors.New("the request execution timeout has expired")
-	jwtKey    = "user"
+	ErrTimout     = errors.New("the request execution timeout has expired")
+	ErrInvalidJWT = errors.New("invalid JWT token")
+	jwtKey        = "user"
 )
 
 type CrimeAnalysisService interface {
@@ -79,31 +80,31 @@ func (h CrimeAppHandler) InitRoutes(e *echo.Echo, timeout time.Duration, jwtSecr
 // @Failure 500 {object} echo.HTTPError
 // @Failure default {object} echo.HTTPError
 // @Router       /crime/analysis [post]
-// @Security ApiKeyAuth
+// @Security BearerAuth
 func (h CrimeAppHandler) GetCrimeAnalysisHandler(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	token, ok := c.Get(jwtKey).(*jwt.Token)
 	if !ok {
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("incorrect JWT token"))
+		return echo.NewHTTPError(http.StatusBadRequest, ErrInvalidJWT.Error())
 	}
-	crimeClaims, ok := token.Claims.(jwtCrimeClaims)
+	crimeClaims, ok := token.Claims.(*jwtCrimeClaims)
 	if !ok {
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("incorrect JWT token"))
+		return echo.NewHTTPError(http.StatusBadRequest, ErrInvalidJWT.Error())
 	}
 
 	request := domain.CrimeAnalysisRequest{}
 	if err := c.Bind(&request); err != nil {
 		h.log.Error(err)
 		//todo: сделать маппинг статус кодов в названия
-		return echo.NewHTTPError(400, err)
+		return echo.NewHTTPError(400, err.Error())
 	}
 	request.UserName = crimeClaims.Login
 
 	response, err := h.crimeAnalysisService.CrimeAnalysis(ctx, request)
 	if err != nil {
 		h.log.Error(err)
-		return echo.NewHTTPError(500, err)
+		return echo.NewHTTPError(500, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -123,17 +124,17 @@ func (h CrimeAppHandler) GetCrimeAnalysisHandler(c echo.Context) error {
 // @Failure 500 {object} echo.HTTPError
 // @Failure default {object} echo.HTTPError
 // @Router       /crime/history [post]
-// @Security ApiKeyAuth
+// @Security BearerAuth
 func (h CrimeAppHandler) GetUserHistory(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	token, ok := c.Get(jwtKey).(*jwt.Token)
 	if !ok {
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("incorrect JWT token"))
+		return echo.NewHTTPError(http.StatusBadRequest, ErrInvalidJWT.Error())
 	}
-	crimeClaims, ok := token.Claims.(jwtCrimeClaims)
+	crimeClaims, ok := token.Claims.(*jwtCrimeClaims)
 	if !ok {
-		return echo.NewHTTPError(http.StatusBadRequest, errors.New("incorrect JWT token"))
+		return echo.NewHTTPError(http.StatusBadRequest, ErrInvalidJWT.Error())
 	}
 
 	request := domain.UserHistoryRequest{UserName: crimeClaims.Login}
@@ -141,7 +142,7 @@ func (h CrimeAppHandler) GetUserHistory(c echo.Context) error {
 	response, err := h.userHistoryService.History(ctx, request)
 	if err != nil {
 		h.log.Error(err)
-		return echo.NewHTTPError(500, err)
+		return echo.NewHTTPError(500, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{

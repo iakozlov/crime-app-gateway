@@ -62,7 +62,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: represents crime analysis
       tags:
       - analysis
@@ -95,13 +95,13 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
-      - ApiKeyAuth: []
+      - BearerAuth: []
       summary: represents user requests history
       tags:
       - history
 securityDefinitions:
-  ApiKeyAuth:
+  BearerAuth:
     in: header
-    name: CrimeJWT
+    name: Authorization
     type: apiKey
 swagger: "2.0"
