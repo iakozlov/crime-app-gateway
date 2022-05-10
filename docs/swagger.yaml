@@ -1,0 +1,107 @@
+basePath: /
+definitions:
+  domain.CrimeAnalysisRequest:
+    properties:
+      address:
+        type: string
+      date:
+        type: string
+      lat:
+        type: string
+      lng:
+        type: string
+      time:
+        type: string
+      userName:
+        type: string
+    type: object
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: Crime app auth provides authentication for crime-app microservices.
+  title: Crime app auth
+  version: "1.0"
+paths:
+  /crime/analysis:
+    post:
+      consumes:
+      - application/json
+      description: get info about crime analysis at some point
+      parameters:
+      - description: CrimeAnalysisInfo
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CrimeAnalysisRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: represents crime analysis
+      tags:
+      - analysis
+  /crime/history:
+    post:
+      consumes:
+      - application/json
+      description: get user requests history
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: represents user requests history
+      tags:
+      - history
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
