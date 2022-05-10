@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/spf13/viper"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 type ServerConfig struct {
@@ -20,6 +21,7 @@ type Config struct {
 	SrvConfig      ServerConfig  `mapstructure:"server"`
 	DatabaseConfig DbConfig      `mapstructure:"db"`
 	CtxTimeout     time.Duration `mapstructure:"timeout"`
+	SecretJWT      string        `mapstructure:"secret"`
 }
 
 func Read(configFilePath string) (*Config, error) {
