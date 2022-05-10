@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"os"
 	"os/signal"
@@ -41,6 +42,14 @@ func main() {
 	}
 
 	mongoClient, err := db.Connect(ctx, cfg.DatabaseConfig)
+
+	defer func(mongoClient *mongo.Client, ctx context.Context) {
+		err := mongoClient.Disconnect(ctx)
+		if err != nil {
+			log.Fatalf("error while disconecting from mongo, err: %w", err)
+		}
+	}(mongoClient, ctx)
+
 	if err != nil {
 		log.Fatal(err)
 	}
