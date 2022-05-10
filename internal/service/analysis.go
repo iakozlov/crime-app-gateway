@@ -22,7 +22,7 @@ func NewCrimeAnalysisService(repo CrimeAnalysisRepository, historyService handle
 	}
 }
 
-func (s CrimeAnalysisService) CrimeAnalysis(ctx context.Context, request domain.CrimeAnalysisRequest) (*domain.CrimeAnalysisResponse, error) {
+func (s CrimeAnalysisService) CrimeAnalysis(ctx context.Context, request domain.CrimeAnalysisRequest, username string) (*domain.CrimeAnalysisResponse, error) {
 	crimeAnalysis, err := s.crimeAnalysisRepo.CrimeAnalysis(ctx, request)
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (s CrimeAnalysisService) CrimeAnalysis(ctx context.Context, request domain.
 		RequestDate:   request.Date,
 		Address:       request.Address,
 	}
-	err = s.historyService.AddHistory(ctx, history, request.UserName)
+	err = s.historyService.AddHistory(ctx, history, username)
 
 	if err != nil {
 		return nil, err

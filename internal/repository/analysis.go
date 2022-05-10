@@ -14,7 +14,7 @@ import (
 
 const (
 	methodType = "POST"
-	uri        = "http://192.168.0.99:80/predict"
+	uri        = "http://192.168.0.99:3000/predict"
 )
 
 type CrimeAnalysisRepository struct {
