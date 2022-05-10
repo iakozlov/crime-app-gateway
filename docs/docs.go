@@ -147,12 +147,6 @@ const docTemplate = `{
                 },
                 "lng": {
                     "type": "string"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "userName": {
-                    "type": "string"
                 }
             }
         },

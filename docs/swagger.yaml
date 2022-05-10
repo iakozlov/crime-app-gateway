@@ -10,10 +10,6 @@ definitions:
         type: string
       lng:
         type: string
-      time:
-        type: string
-      userName:
-        type: string
     type: object
   echo.HTTPError:
     properties:
