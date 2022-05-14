@@ -3,11 +3,12 @@ package main
 import (
 	"context"
 	"errors"
-	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/iakozlov/crime-app-gateway/config"
 	"github.com/iakozlov/crime-app-gateway/internal/handlers"
@@ -67,6 +68,9 @@ func main() {
 	handlers.InitCommonRoutes(e)
 	handler := handlers.NewCrimeAnalysisHandler(analysisService, historyService, log)
 	handler.InitRoutes(e, cfg.CtxTimeout, cfg.SecretJWT)
+
+	authHandler := handlers.NewAuthHandler(log)
+	authHandler.InitRoutes(e, cfg.CtxTimeout)
 
 	srv := server.NewServer(cfg.SrvConfig, e)
 
