@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/iakozlov/crime-app-gateway/internal/domain"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	crimeAuthURL = "http://localhost:8080"
+	crimeAuthURLRegister = "http://localhost:8080/users/register"
+	crimeAuthURLLogin    = "http://localhost:8080/users/login"
 )
 
 type AuthHandler struct {
@@ -59,16 +59,7 @@ func (h AuthHandler) InitRoutes(e *echo.Echo, timeout time.Duration) {
 // @Failure default {object} echo.HTTPError
 // @Router       /users/register [post]
 func (h AuthHandler) SignUpHandler(c echo.Context) error {
-	//ctx := c.Request().Context()
-
-	user := domain.User{}
-	if err := c.Bind(&user); err != nil {
-		h.log.Error(err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	user.Password = nil
-	return c.JSON(http.StatusCreated, user)
+	return c.Redirect(http.StatusPermanentRedirect, crimeAuthURLRegister)
 }
 
 // SignInHandler godoc
@@ -85,7 +76,5 @@ func (h AuthHandler) SignUpHandler(c echo.Context) error {
 // @Failure default {object} echo.HTTPError
 // @Router       /users/login [post]
 func (h AuthHandler) SignInHandler(c echo.Context) error {
-	return c.JSON(http.StatusOK, echo.Map{
-		"token": "xxx",
-	})
+	return c.Redirect(http.StatusPermanentRedirect, crimeAuthURLLogin)
 }
