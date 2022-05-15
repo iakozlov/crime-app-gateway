@@ -20,7 +20,7 @@ var (
 )
 
 type CrimeAnalysisService interface {
-	CrimeAnalysis(ctx context.Context, request domain.CrimeAnalysisRequest) (*domain.CrimeAnalysisResponse, error)
+	CrimeAnalysis(ctx context.Context, request domain.CrimeAnalysisRequest, username string) (*domain.CrimeAnalysisResponse, error)
 }
 
 type UserHistoryService interface {
@@ -96,15 +96,14 @@ func (h CrimeAppHandler) GetCrimeAnalysisHandler(c echo.Context) error {
 	request := domain.CrimeAnalysisRequest{}
 	if err := c.Bind(&request); err != nil {
 		h.log.Error(err)
-		//todo: сделать маппинг статус кодов в названия
-		return echo.NewHTTPError(400, err.Error())
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	request.UserName = crimeClaims.Login
+	username := crimeClaims.Login
 
-	response, err := h.crimeAnalysisService.CrimeAnalysis(ctx, request)
+	response, err := h.crimeAnalysisService.CrimeAnalysis(ctx, request, username)
 	if err != nil {
 		h.log.Error(err)
-		return echo.NewHTTPError(500, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{
@@ -142,7 +141,7 @@ func (h CrimeAppHandler) GetUserHistory(c echo.Context) error {
 	response, err := h.userHistoryService.History(ctx, request)
 	if err != nil {
 		h.log.Error(err)
-		return echo.NewHTTPError(500, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, echo.Map{

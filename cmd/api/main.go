@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"github.com/iakozlov/crime-app-gateway/config"
 	"github.com/iakozlov/crime-app-gateway/internal/handlers"
 	"github.com/iakozlov/crime-app-gateway/internal/repository"
@@ -41,6 +43,14 @@ func main() {
 	}
 
 	mongoClient, err := db.Connect(ctx, cfg.DatabaseConfig)
+
+	defer func(mongoClient *mongo.Client, ctx context.Context) {
+		err := mongoClient.Disconnect(ctx)
+		if err != nil {
+			log.Fatalf("error while disconecting from mongo, err: %w", err)
+		}
+	}(mongoClient, ctx)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -58,6 +68,9 @@ func main() {
 	handlers.InitCommonRoutes(e)
 	handler := handlers.NewCrimeAnalysisHandler(analysisService, historyService, log)
 	handler.InitRoutes(e, cfg.CtxTimeout, cfg.SecretJWT)
+
+	authHandler := handlers.NewAuthHandler(log)
+	authHandler.InitRoutes(e, cfg.CtxTimeout)
 
 	srv := server.NewServer(cfg.SrvConfig, e)
 
